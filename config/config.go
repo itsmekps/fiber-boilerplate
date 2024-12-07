@@ -1,12 +1,11 @@
 package config
 
 import (
-	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Port string `envconfig:"PORT" default:"3000"`
+	Port string `mapstructure:"PORT"`
 }
 
 func InitConfig() (*viper.Viper, error) {
@@ -19,7 +18,7 @@ func InitConfig() (*viper.Viper, error) {
 	}
 
 	var c Config
-	err = envconfig.Process("", &c)
+	err = v.Unmarshal(&c)
 	if err != nil {
 		return nil, err
 	}

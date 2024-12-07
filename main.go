@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 
+	"fiber-boilerplate/app/database"
+	"fiber-boilerplate/app/middleware"
+	"fiber-boilerplate/app/router"
 	"fiber-boilerplate/config"
-
-	"github.com/gofiber/fiber/v2"
+	"fiber-boilerplate/internal/bootstrap"
 )
 
 func main() {
@@ -14,15 +16,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create a new Fiber app
-	app := fiber.New()
+	db, err := database.InitDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	// Define a route
-	app.Get("/", func(c *fiber.Ctx) error {
-		// return c.SendString("Hello, World!")
-		return c.JSON(fiber.Map{"message": "Hello, World!"})
-	})
-
-	// Start the server
-	log.Fatal(app.Listen(":" + v.GetString("PORT")))
+	app := bootstrap.InitWebServer()
+	middleware.RegisterMiddleware(app)
+	router.RegisterAPIRoutes(app)
+	log.Fatal(app.Listen(":" + v.GetString("Port")))
 }
