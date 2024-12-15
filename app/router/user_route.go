@@ -14,7 +14,7 @@ func UserRouter(router fiber.Router) {
 	var getUserDetailsRequest dtos.GetUserDetailsRequest
 	userGroup := router.Group("/users")
 	{
-		userGroup.Get("/details", middleware.ValidateRequest(validate, &getUserDetailsRequest), user.GetUserDetails)
-		userGroup.Get("/:id", user.GetUser)
+		userGroup.Get("/details", user.GetUserDetails)
+		userGroup.Get("/:id:int", middleware.ValidateRequest(validate, &getUserDetailsRequest), user.GetUser)
 	}
 }
