@@ -2,26 +2,38 @@
 package middleware
 
 import (
+	"strconv"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Details []struct {
-		Field string `json:"field"`
-		Error string `json:"error"`
-	} `json:"details"`
+// ValidationError returns a validation error response
+func ValidationError(c *fiber.Ctx, field string, error string) error {
+	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		"error": "Validation failed",
+		"details": []fiber.Map{
+			{
+				"field": field,
+				"error": error,
+			},
+		},
+	})
 }
 
+// ValidateRequest validates the request body and path parameters
 func ValidateRequest(validate *validator.Validate, request interface{}) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := c.BodyParser(request)
-		if err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, "Invalid request payload")
+		// Only parse the request body for non-GET requests
+		if c.Method() != fiber.MethodGet {
+			err := c.BodyParser(request)
+			if err != nil {
+				return fiber.NewError(fiber.StatusBadRequest, "Invalid request payload")
+			}
 		}
 
-		err = validate.Struct(request)
+		// Validate the request
+		err := validate.Struct(request)
 		if err != nil {
 			var details []struct {
 				Field string `json:"field"`
@@ -38,10 +50,23 @@ func ValidateRequest(validate *validator.Validate, request interface{}) fiber.Ha
 				})
 			}
 
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error:   "Validation failed",
-				Details: details,
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "Validation failed",
+				"details": details,
 			})
+		}
+
+		// Manually validate path parameters for GET requests
+		if c.Method() == fiber.MethodGet {
+			id := c.Params("id")
+			if id == "" {
+				return ValidationError(c, "id", "ID is required")
+			}
+
+			_, err := strconv.Atoi(id)
+			if err != nil {
+				return ValidationError(c, "id", "ID must be an integer")
+			}
 		}
 
 		return c.Next()

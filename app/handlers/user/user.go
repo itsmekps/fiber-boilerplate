@@ -19,7 +19,7 @@ func GetUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(user)
+	return c.JSON(fiber.Map{"success": true, "data": fiber.Map{"user": user}})
 }
 
 func GetUserDetails(c *fiber.Ctx) error {

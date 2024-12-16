@@ -1,8 +1,6 @@
 package dtos
 
-type GetUserDetailsRequest struct {
-	ID int `json:"id" validate:"required"`
-}
+type GetUserDetailsRequest struct {}
 
 type CreateUserRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`

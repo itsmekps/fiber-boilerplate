@@ -36,7 +36,7 @@ func (r *UserRepository) GetUserByUsername(username string) (*models.User, error
 }
 
 func (r *UserRepository) GetUser(id int) (*models.User, error) {
-	var user models.User
+	var user = models.User{}
 	err := r.db.QueryRow("SELECT * FROM users WHERE id = ?", id).Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		return nil, err
