@@ -1,19 +1,33 @@
+// service/init.go
 package service
 
 import (
-	"fiber-boilerplate/app/repository/mysql"
-	"log"
+	"fiber-boilerplate/app/repository"
+	"fiber-boilerplate/app/service/mysql"
 )
 
-var UserServiceInstance *UserService
+type Services struct {
+	UserService *service.UserService
+}
 
-func InitServices(repos map[string]interface{}) {
-	// Initializing user service
-	userRepo, ok := repos["userRepo"].(*mysql.UserRepository)
-	if !ok {
-		log.Fatal("Invalid user repository instance")
+func InitServices(repos *repository.Repositories) (*Services, error) {
+	services := &Services{}
+
+	if repos.MySQL != nil {
+		mysqlServices, err := mysql.InitServices(repos.MySQL)
+		if err != nil {
+			return nil, err
+		}
+		services.UserService = mysqlServices.UserService
 	}
-	UserServiceInstance = NewUserService(userRepo)
 
-	// Initialize other services...
+	if repos.MongoDB != nil {
+		mongoServices, err := mongodb.InitServices(repos.MongoDB)
+		if err != nil {
+			return nil, err
+		}
+		services.UserService = mongoServices.UserService
+	}
+
+	return services, nil
 }
