@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fiber-boilerplate/app/database"
 	"fiber-boilerplate/app/logger"
 	"fiber-boilerplate/app/middleware"
@@ -9,6 +10,9 @@ import (
 	"fiber-boilerplate/app/service"
 	"fiber-boilerplate/config"
 	"fiber-boilerplate/internal/bootstrap"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -17,21 +21,34 @@ func main() {
 
 	v, err := config.InitConfig()
 	if err != nil {
-
 		log.Fatal(err)
 	}
 
-	db, err := database.InitDB()
+	// Initialize MySQL database
+	mysqlDB, err := database.InitDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer mysqlDB.Close()
+
+	// Initialize MongoDB database
+	mongoClient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://kpskispl:shuklaCLG%40123!@clg.bg5vb.mongodb.net/?retryWrites=true&w=majority&appName=CLG"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer mongoClient.Disconnect(context.TODO())
+
+	mongoDB := mongoClient.Database("your_database_name")
 
 	// Initialize repositories
-	repos := repository.InitRepositories(db)
+	repos, err := repository.InitRepositories("both", mysqlDB, mongoDB)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize services
-	service.InitServices(repos)
+	service.InitServices(repos.MySQL)
+	// service.InitServices(repos.MongoDB)
 
 	app := bootstrap.InitWebServer()
 	app.Use(middleware.LogMiddleware())

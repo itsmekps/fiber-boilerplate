@@ -120,3 +120,5 @@ time="2024-12-13T06:13:54Z" level=info msg="Request received" func="main.main.fu
 [36mINFO[0m[2024-12-16 15:38:04]/workspaces/fiber-boilerplate/app/middleware/logger.go:29 main.main.LogMiddleware.func1() Request received                              [36mmethod[0m=GET [36mpath[0m=/api/users/abc [36mtimestamp[0m="2024-12-16 15:38:04"
 [36mINFO[0m[2024-12-16 15:40:27]/workspaces/fiber-boilerplate/app/middleware/logger.go:29 main.main.LogMiddleware.func1() Request received                              [36mmethod[0m=GET [36mpath[0m=/api/users/34 [36mtimestamp[0m="2024-12-16 15:40:27"
 [36mINFO[0m[2024-12-16 15:41:40]/workspaces/fiber-boilerplate/app/middleware/logger.go:29 main.main.LogMiddleware.func1() Request received                              [36mmethod[0m=GET [36mpath[0m=/api/users/34 [36mtimestamp[0m="2024-12-16 15:41:40"
+[31mFATA[0m[2024-12-16 17:53:27]/workspaces/fiber-boilerplate/main.go:37 main.main() error parsing uri: unescaped @ sign in user info 
+[31mFATA[0m[2024-12-16 17:54:02]/workspaces/fiber-boilerplate/main.go:37 main.main() error parsing uri: unescaped @ sign in user info 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fiber-boilerplate/app/repository"
+	"fiber-boilerplate/app/repository/mysql"
 	"log"
 )
 
@@ -9,7 +9,7 @@ var UserServiceInstance *UserService
 
 func InitServices(repos map[string]interface{}) {
 	// Initializing user service
-	userRepo, ok := repos["userRepo"].(*repository.UserRepository)
+	userRepo, ok := repos["userRepo"].(*mysql.UserRepository)
 	if !ok {
 		log.Fatal("Invalid user repository instance")
 	}
