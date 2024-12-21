@@ -1,13 +1,25 @@
 package repository
 
 import (
-	"database/sql"
+	"fiber-boilerplate/app/database"
+	"fiber-boilerplate/app/repository/mongodb"
+	"fiber-boilerplate/app/repository/mysql"
+	"log"
 )
 
-func InitRepositories(db *sql.DB) map[string]interface{} {
+func InitRepositories(connections database.DBConnections) map[string]interface{} {
+
+	// Initialize MongoDB repositories
+	mongoRepos, err := mongodb.InitRepositories(connections.MongoDB)
+	if err != nil {
+		log.Fatalf("Failed to initialize MongoDB repositories: %v", err)
+	}
+
+	mysqlRepos := mysql.InitRepositories(connections.MySQL)
+
 	repos := map[string]interface{}{
-		"userRepo": NewUserRepository(db),
-		// Add other repository instances here...
+		"mysql":   mysqlRepos,
+		"mongodb": mongoRepos,
 	}
 	return repos
 }

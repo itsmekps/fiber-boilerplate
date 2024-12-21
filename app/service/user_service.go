@@ -2,14 +2,14 @@ package service
 
 import (
 	"fiber-boilerplate/app/models"
-	"fiber-boilerplate/app/repository"
+	repo_mysql "fiber-boilerplate/app/repository/mysql"
 )
 
 type UserService struct {
-	userRepo *repository.UserRepository
+	userRepo *repo_mysql.UserRepository
 }
 
-func NewUserService(userRepo *repository.UserRepository) *UserService {
+func NewUserService(userRepo *repo_mysql.UserRepository) *UserService {
 	return &UserService{userRepo: userRepo}
 }
 
@@ -25,4 +25,3 @@ func (s *UserService) GetUser(id int) (*models.User, error) {
 	// Use the user repository to retrieve the user
 	return s.userRepo.GetUser(id)
 }
-
