@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fiber-boilerplate/app/service"
+	"fiber-boilerplate/app/service/mongodb"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,7 +14,8 @@ func GetUser(c *fiber.Ctx) error {
 	}
 
 	// Access the GetUser method
-	user, err := service.UserServiceInstance.GetUser(id)
+	// user, err := mysql.UserServiceInstance.GetUser(id)
+	user, err := mongodb.UserServiceInstancem.GetUser(id)
 	if err != nil {
 		return err
 	}

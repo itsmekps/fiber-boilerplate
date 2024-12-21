@@ -1,28 +1,27 @@
+// service/init.go
 package service
 
 import (
-	"fiber-boilerplate/app/repository/mysql"
+	"fiber-boilerplate/app/service/mongodb"
+	"fiber-boilerplate/app/service/mysql"
 	"log"
 )
 
-var UserServiceInstance *UserService
-
 func InitServices(repos map[string]interface{}) {
-
-	// Accessing the "mysql" repository group from repos
+	// Initialize MySQL services
 	mysqlRepos, ok := repos["mysql"].(map[string]interface{})
 	if !ok {
 		log.Fatal("MySQL repositories not found or invalid type")
 	}
 
-	// Extracting the user repository
-	userRepo, ok := mysqlRepos["userRepo"].(*mysql.UserRepository)
+	mongoRepos, ok := repos["mongodb"].(map[string]interface{})
 	if !ok {
-		log.Fatal("Invalid user repository instance")
+		log.Fatal("MySQL repositories not found or invalid type")
 	}
 
-	// Initializing user service
-	UserServiceInstance = NewUserService(userRepo)
+	mysql.InitServices(mysqlRepos)
+	mongodb.InitServices(mongoRepos)
 
-	// Initialize other services...
+	// Initialize MongoDB services
+	// mongo.InitServices(repos.(mapinterface{}))
 }

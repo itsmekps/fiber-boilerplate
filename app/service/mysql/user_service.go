@@ -1,15 +1,15 @@
-package service
+package mysql
 
 import (
 	"fiber-boilerplate/app/models"
-	repo_mysql "fiber-boilerplate/app/repository/mysql"
+	"fiber-boilerplate/app/repository/mysql"
 )
 
 type UserService struct {
-	userRepo *repo_mysql.UserRepository
+	userRepo *mysql.UserRepository
 }
 
-func NewUserService(userRepo *repo_mysql.UserRepository) *UserService {
+func NewUserService(userRepo *mysql.UserRepository) *UserService {
 	return &UserService{userRepo: userRepo}
 }
 
