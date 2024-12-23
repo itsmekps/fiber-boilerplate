@@ -55,6 +55,7 @@ func main() {
 	// 	}).Info("Request received")
 	// 	return c.Next()
 	// })
+	//
 
 	middleware.RegisterMiddleware(app)
 	// router.RegisterAPIRoutes(app)
