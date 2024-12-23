@@ -12,6 +12,7 @@ bin/
 *.exe
 
 # Logs
+logrus.log
 *.log
 logs/
 
