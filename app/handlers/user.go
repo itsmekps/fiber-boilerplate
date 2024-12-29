@@ -9,39 +9,33 @@ import (
 
 // GetUser returns a user by ID
 func GetUser(c *fiber.Ctx) error {
+	// Retrieve the validated request object from Fiber's context
+	// The validated request contains the parsed and validated ObjectID from the route parameter
 	validatedRequest := c.Locals("validatedRequest").(*dtos.GetUserByMongoID)
-	// id, err := c.ParamsInt("id")
-
-	// id := c.Params("id")
-	// if err != nil {
-	// 	return err
-	// }
-
-	// Convert the ID to a MongoDB ObjectID
-	// objID, err := primitive.ObjectIDFromHex(id)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"error": "Invalid ID format",
-	// 	})
-	// }
-	// fmt.Println("objID handler: ", objID)
-	// Access the GetUser method
-	// user, err := mysql.UserServiceInstance.GetUser(id)
+	
+	// Fetch the user from the database using the validated ObjectID
+	// The service layer is responsible for interacting with MongoDB
 	user, err := mongodb.UserServiceInstance.GetUser(validatedRequest.ID)
 	if err != nil {
+		// Return the error if the user retrieval fails (e.g., user not found or DB error)
 		return err
 	}
 
-	return c.JSON(fiber.Map{"success": true, "data": fiber.Map{"user": user}})
+	// Create a sanitized response object excluding sensitive fields (e.g., password)
+	response := dtos.UserResponse{
+		ID:       user.ID.Hex(), // Convert the ObjectID to its string representation (Hex format)
+		Username: user.Username, // User's username
+		Email:    user.Email,    // User's email address
+	}
+
+	// Send the JSON response back to the client, wrapping the user data in a success object
+	return c.JSON(fiber.Map{
+		"success": true,                  // Indicate the operation was successful
+		"data":    fiber.Map{"user": response}, // Include the sanitized user data
+	})
 }
+
 
 func GetUserDetails(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "API is working!"})
 }
-
-// GetUser Swagger documentation
-// @Summary Get a user by ID
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} User
-// @Router /users/{id} [get]

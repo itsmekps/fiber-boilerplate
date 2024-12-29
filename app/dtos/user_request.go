@@ -12,10 +12,6 @@ type GetUserByMongoID struct {
 	ID primitive.ObjectID `param:"id" validate:"required"`
 }
 
-// type GetUserByMongoIDRequest struct {
-// 	ID primitive.ObjectID `param:"id" validate:"required"` // Parameter is a MongoDB ObjectID
-// }
-
 // DTO for validating a string ID
 type GetUserByStringIDRequest struct {
     ID string `param:"id" validate:"required"`
@@ -24,4 +20,10 @@ type GetUserByStringIDRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`   // Email must be provided and valid
 	Password string `json:"password" validate:"required,min=6"` // Password must be at least 6 characters long
+}
+
+type UserResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }

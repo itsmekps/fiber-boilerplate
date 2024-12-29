@@ -34,26 +34,12 @@ import (
 
 func UserRouter(router fiber.Router) {
 	validate := validator.New()
-	// var getUserDetailsRequest dtos.GetUserByMongoIDRequest
-	// var loginRequest dtos.LoginRequest
+
 	userGroup := router.Group("/users")
 	{
-		// Validate login request body
-		// userGroup.Post("/login", middleware.ValidateRequestDTO(validate, &dtos.LoginRequest{}), user.Login)
-
 		// Validate details request without parameters
 		userGroup.Get("/details", user.GetUserDetails)
 
-		// Validate route with integer ID
-		// userGroup.Get("/:id", middleware.ValidateRequest(validate, &getUserDetailsRequest, map[string]string{
-		// 	"id": "objectid",
-		// }), user.GetUser)
-
 		userGroup.Get("/:id", middleware.ValidateRequestDTO(validate, &dtos.GetUserByMongoID{}), user.GetUser)
-
-		// Validate route with MongoDB ObjectID
-		// userGroup.Get("/mongo/:id", middleware.ValidateRequest(validate, nil, map[string]string{
-		// 	"id": "objectid",
-		// }), user.GetMongoUser)
 	}
 }
