@@ -4,10 +4,10 @@ package mongodb
 import (
 	"fiber-boilerplate/app/models"
 	"fiber-boilerplate/app/repository/mongodb"
-	"log"
+	// "log"
 )
 
-var UserServiceInstance *UserService
+// var UserServiceInstance *UserService
 
 type UserService struct {
 	repo *mongodb.UserRepository
@@ -19,8 +19,11 @@ func NewUserService(repo *mongodb.UserRepository) *UserService {
 
 // User-related methods
 func (s *UserService) GetUser(id int) (*models.User, error) {
-	log.Println("inside user service=====================================")
 	return s.repo.GetUser(id)
+}
+
+func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
+	return s.repo.GetUserByEmail(email)
 }
 
 // func (s *UserService) CreateUser(user *User) (*User, error) {

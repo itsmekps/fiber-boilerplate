@@ -12,8 +12,10 @@ import (
 func UserRouter(router fiber.Router) {
 	validate := validator.New()
 	var getUserDetailsRequest dtos.GetUserDetailsRequest
+	var loginRequest dtos.LoginRequest
 	userGroup := router.Group("/users")
 	{
+		userGroup.Post("/login", middleware.ValidateRequest(validate, &loginRequest), user.Login)
 		userGroup.Get("/details", user.GetUserDetails)
 		userGroup.Get("/:id", middleware.ValidateRequest(validate, &getUserDetailsRequest), user.GetUser)
 	}

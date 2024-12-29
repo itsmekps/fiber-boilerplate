@@ -25,6 +25,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.5 // indirect
 	github.com/gofiber/swagger v1.1.0 // indirect
 	github.com/gofiber/utils v0.0.10 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/schema v1.1.0 // indirect

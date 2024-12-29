@@ -69,6 +69,9 @@ func ValidateRequest(validate *validator.Validate, request interface{}) fiber.Ha
 			}
 		}
 
+		// Store the validated request in Locals for access in handlers
+		c.Locals("validatedRequest", request)
+
 		return c.Next()
 	}
 }

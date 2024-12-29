@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-var UserServiceInstancem *UserService
+var UserServiceInstance *UserService
 
 func InitServices(mongoRepos map[string]interface{}) {
 	// Accessing the "mongo" repository group from repos
@@ -17,5 +17,5 @@ func InitServices(mongoRepos map[string]interface{}) {
 	}
 
 	// Initializing user service
-	UserServiceInstancem = NewUserService(userRepo)
+	UserServiceInstance = NewUserService(userRepo)
 }

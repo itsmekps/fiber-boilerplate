@@ -6,3 +6,8 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `jsom:"password"`
 }
+
+// Error implements error.
+func (u *User) Error() string {
+	panic("unimplemented")
+}

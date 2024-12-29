@@ -76,5 +76,5 @@ func startServer(app *fiber.App, db database.DBConnections) {
 		log.Fatal(err)
 	}
 	log.Fatal(app.Listen(":" + v.GetString("Port")))
-	defer db.MySQL.Close()
+	// defer db.MySQL.Close()
 }

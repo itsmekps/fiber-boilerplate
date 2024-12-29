@@ -3,7 +3,8 @@ package mongodb
 import (
 	"context"
 	"fiber-boilerplate/app/models"
-	"log"
+
+	// "log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,7 +18,6 @@ func NewUserRepository(collection *mongo.Collection) *UserRepository {
 	return &UserRepository{collection: collection}
 }
 func (r *UserRepository) GetUser(id int) (*models.User, error) {
-	log.Println("inside user repo====================================", id)
 	var user models.User
 	err := r.collection.FindOne(context.TODO(), bson.M{"id": id}).Decode(&user)
 	if err != nil {
@@ -25,6 +25,16 @@ func (r *UserRepository) GetUser(id int) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.collection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *UserRepository) CreateUser(user *models.User) error {
 	_, err := r.collection.InsertOne(context.TODO(), user)
 	return err
