@@ -1,19 +1,27 @@
 package dtos
 
-type GetUserDetailsRequest struct {}
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type CreateUserRequest struct {
-	Username string `json:"username" validate:"required,min=3,max=20"`
-	Email    string `json:"email" validate:"required,email"`
+// DTO for validating an integer ID
+type GetUserByIDRequest struct {
+    ID int `param:"id" validate:"required"`
+}
+
+// DTO for validating a MongoDB ObjectID
+type GetUserByMongoID struct {
+	ID primitive.ObjectID `param:"id" validate:"required"`
+}
+
+// type GetUserByMongoIDRequest struct {
+// 	ID primitive.ObjectID `param:"id" validate:"required"` // Parameter is a MongoDB ObjectID
+// }
+
+// DTO for validating a string ID
+type GetUserByStringIDRequest struct {
+    ID string `param:"id" validate:"required"`
 }
 
 type LoginRequest struct {
-    Email    string `json:"email" validate:"required,email"`
-    Password string `json:"password" validate:"required,min=6"`
-}
-
-type UpdateUserRequest struct {
-	ID       int    `json:"id" validate:"required"`
-	Username string `json:"username" validate:"omitempty,min=3,max=20"`
-	Email    string `json:"email" validate:"omitempty,email"`
+	Email    string `json:"email" validate:"required,email"`   // Email must be provided and valid
+	Password string `json:"password" validate:"required,min=6"` // Password must be at least 6 characters long
 }

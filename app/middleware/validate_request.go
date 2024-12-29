@@ -1,40 +1,83 @@
-// middleware/validate_request.go
 package middleware
 
 import (
+	"reflect"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ValidationError returns a validation error response
-func ValidationError(c *fiber.Ctx, field string, error string) error {
+// ValidationError returns a structured JSON validation error response
+func ValidationError(c *fiber.Ctx, field, message string) error {
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 		"error": "Validation failed",
 		"details": []fiber.Map{
 			{
 				"field": field,
-				"error": error,
+				"error": message,
 			},
 		},
 	})
 }
 
-// ValidateRequest validates the request body and path parameters
-func ValidateRequest(validate *validator.Validate, request interface{}) fiber.Handler {
+// ValidateRequestDTO dynamically validates request body and parameters based on the type struct
+func ValidateRequestDTO(validate *validator.Validate, dto interface{}) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Only parse the request body for non-GET requests
-		if c.Method() != fiber.MethodGet {
-			err := c.BodyParser(request)
-			if err != nil {
-				return fiber.NewError(fiber.StatusBadRequest, "Invalid request payload")
+		value := reflect.ValueOf(dto).Elem()
+
+		for i := 0; i < value.NumField(); i++ {
+			field := value.Type().Field(i)
+			fieldValue := value.Field(i)
+
+			// Check for param or JSON tags
+			paramTag := field.Tag.Get("param")
+			jsonTag := field.Tag.Get("json")
+
+			if paramTag != "" {
+				// Validate route parameters
+				paramValue := c.Params(paramTag)
+				if paramValue == "" {
+					return ValidationError(c, paramTag, "Parameter is required")
+				}
+
+				// Validate parameter type
+				switch field.Type.Kind() {
+				case reflect.Int:
+					intValue, err := strconv.Atoi(paramValue)
+					if err != nil {
+						return ValidationError(c, paramTag, "Parameter must be an integer")
+					}
+					fieldValue.SetInt(int64(intValue))
+				case reflect.String:
+					fieldValue.SetString(paramValue)
+				case reflect.Struct:
+					if field.Type == reflect.TypeOf(primitive.ObjectID{}) {
+						objID, err := primitive.ObjectIDFromHex(paramValue)
+						if err != nil {
+							return ValidationError(c, paramTag, "Parameter must be a valid MongoDB ObjectID")
+						}
+						fieldValue.Set(reflect.ValueOf(objID))
+					} else {
+						return ValidationError(c, paramTag, "Unsupported parameter type")
+					}
+				
+				default:
+					return ValidationError(c, paramTag, "Unsupported parameter type")
+				}
+			}
+
+			if jsonTag != "" && (c.Method() == fiber.MethodPost || c.Method() == fiber.MethodPatch || c.Method() == fiber.MethodPut) {
+				// Parse request body for body-based fields
+				if err := c.BodyParser(dto); err != nil {
+					return ValidationError(c, "body", "Invalid request payload")
+				}
 			}
 		}
 
-		// Validate the request
-		err := validate.Struct(request)
-		if err != nil {
+		// Validate the DTO using struct tags
+		if err := validate.Struct(dto); err != nil {
 			var details []struct {
 				Field string `json:"field"`
 				Error string `json:"error"`
@@ -56,21 +99,8 @@ func ValidateRequest(validate *validator.Validate, request interface{}) fiber.Ha
 			})
 		}
 
-		// Manually validate path parameters for GET requests
-		if c.Method() == fiber.MethodGet {
-			id := c.Params("id")
-			if id == "" {
-				return ValidationError(c, "id", "ID is required")
-			}
-
-			_, err := strconv.Atoi(id)
-			if err != nil {
-				return ValidationError(c, "id", "ID must be an integer")
-			}
-		}
-
-		// Store the validated request in Locals for access in handlers
-		c.Locals("validatedRequest", request)
+		// Store validated request for handler access
+		// c.Locals("validatedRequest", dto)
 
 		return c.Next()
 	}

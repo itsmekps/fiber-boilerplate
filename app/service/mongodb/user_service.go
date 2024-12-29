@@ -4,6 +4,9 @@ package mongodb
 import (
 	"fiber-boilerplate/app/models"
 	"fiber-boilerplate/app/repository/mongodb"
+	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	// "log"
 )
 
@@ -18,7 +21,9 @@ func NewUserService(repo *mongodb.UserRepository) *UserService {
 }
 
 // User-related methods
-func (s *UserService) GetUser(id int) (*models.User, error) {
+func (s *UserService) GetUser(id primitive.ObjectID) (*models.User, error) {
+	fmt.Println("objID service: ", id)
+	
 	return s.repo.GetUser(id)
 }
 
