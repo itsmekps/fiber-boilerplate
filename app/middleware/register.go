@@ -11,5 +11,6 @@ func RegisterMiddleware(app *fiber.App) {
 
 	// Protect API routes with auth middleware
 	// api := app.Group("/api")
+	app.Group("/api")
 	// api.Use(AuthMiddleware())
 }

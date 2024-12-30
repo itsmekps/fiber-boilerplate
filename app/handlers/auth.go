@@ -40,10 +40,6 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Respond with the generated access token
-	return c.JSON(fiber.Map{
-		"success": true,
-		"data": fiber.Map{
-			"access_token": jwt,
-		},
-	})
+	return c.JSON(fiber.Map{"access_token": jwt,
+			"token_type": "Bearer",})
 }

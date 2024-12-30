@@ -24,7 +24,7 @@ func GetUser(c *fiber.Ctx) error {
 	// Create a sanitized response object excluding sensitive fields (e.g., password)
 	response := dtos.UserResponse{
 		ID:       user.ID.Hex(), // Convert the ObjectID to its string representation (Hex format)
-		Username: user.Username, // User's username
+		Username: user.FirstName, // User's username
 		Email:    user.Email,    // User's email address
 	}
 

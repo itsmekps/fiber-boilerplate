@@ -1,35 +1,38 @@
 package middleware
 
 import (
-	"encoding/base64"
+	"fiber-boilerplate/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Set Credentials
-		expectedUsername := "admin"
-		expectedPassword := "password"
-
-		// Get Authorization Header
+		// Get Authorization header
 		authHeader := c.Get("Authorization")
 
-		// check if auth header exists
-		if authHeader == "" {
-			return c.Status(401).SendString("Unauthorized")
+		// Check if the Authorization header exists and starts with "Bearer "
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error":   "Unauthorized: Missing or invalid token",
+			})
 		}
 
-		// Verify credentials
-		if authHeader != "Basic "+BasicAuth(expectedUsername, expectedPassword) {
-			return c.Status(401).SendString("Unauthorized")
+		// Extract the token from the Authorization header
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// Validate the JWT token
+		isValid, err := utils.ValidateToken(token)
+		if err != nil || !isValid {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error":   "Unauthorized: Invalid or expired token",
+			})
 		}
 
-		// Continue to next handler
+		// Proceed to the next handler
 		return c.Next()
 	}
-}
-
-func BasicAuth(username, password string) string {
-	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
 }
