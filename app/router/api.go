@@ -5,11 +5,12 @@ import (
 )
 
 func ApiRouter(app *fiber.App) {
-
+	// Create a main API group under the "/api" path to organize all API endpoints
 	apiGroup := app.Group("/api")
-	// Register user routes
+	// Register auth routes
 	AuthRouter(apiGroup)
+	// Register user routes
 	UserRouter(apiGroup)
-
-	// Register other routes here...
+	// Register player routes
+	PlayRouter(apiGroup)
 }

@@ -23,7 +23,7 @@ func ValidationError(c *fiber.Ctx, field, message string) error {
 }
 
 // ValidateRequestDTO dynamically validates request body and parameters based on the type struct
-func ValidateRequestDTO(validate *validator.Validate, dto interface{}) fiber.Handler {
+func ValidateRequestDTO(validate *validator.Validate, dto interface{}, customMessages map[string]string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Create a new instance of the DTO for each request
 		newDTO := reflect.New(reflect.TypeOf(dto).Elem()).Interface()
@@ -89,13 +89,21 @@ func ValidateRequestDTO(validate *validator.Validate, dto interface{}) fiber.Han
 			}
 
 			for _, err := range err.(validator.ValidationErrors) {
-				
+
+				// Construct the key for the custom message map
+				customMsgKey := err.Field() + "." + err.Tag()
+				// Get the custom message if available, fallback to default message
+				msg := customMessages[customMsgKey]
+				if msg == "" {
+					msg = "Invalid " + err.Field()
+				}
+
 				details = append(details, struct {
 					Field string `json:"field"`
 					Error string `json:"error"`
 				}{
 					Field: err.Field(),
-					Error: err.Tag(),
+					Error: msg,
 				})
 			}
 

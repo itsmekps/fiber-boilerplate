@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -21,7 +20,7 @@ func GenerateToken(userID string) (string, error) {
 }
 
 // ValidateToken validates the given JWT and ensures it's valid
-func ValidateToken(tokenString string) (bool, error) {
+func ValidateTokenWithClaims(tokenString string) (bool, jwt.MapClaims, error) {
 	// Parse the token with the secret key
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Ensure the signing method is HMAC
@@ -32,17 +31,14 @@ func ValidateToken(tokenString string) (bool, error) {
 	})
 
 	// Check for parsing errors or invalid tokens
-	if err != nil {
-		return false, err
+	if err != nil || !token.Valid {
+		return false, nil, err
 	}
 
-	// Verify if the token is valid
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// Optionally, you can inspect claims here if needed
-		_ = claims // For example: claims["user_id"]
-        fmt.Print("claims ==============>>>", claims)
-		return true, nil
+	// Extract claims and validate them
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		return true, claims, nil
 	}
 
-	return false, errors.New("invalid token")
+	return false, nil, errors.New("invalid token claims")
 }

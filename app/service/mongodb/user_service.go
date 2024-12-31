@@ -43,6 +43,3 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 // 	// Implement logic using s.repo
 // }
 
-type User struct {
-	// Define user fields (e.g., ID, Username, Email)
-}

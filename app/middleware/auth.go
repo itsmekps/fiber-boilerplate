@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func AuthMiddleware() fiber.Handler {
@@ -24,13 +25,26 @@ func AuthMiddleware() fiber.Handler {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// Validate the JWT token
-		isValid, err := utils.ValidateToken(token)
+		isValid, claims, err := utils.ValidateTokenWithClaims(token)
 		if err != nil || !isValid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"success": false,
 				"error":   "Unauthorized: Invalid or expired token",
 			})
 		}
+
+		// Extract user_id from claims and convert it to ObjectID
+		userIDStr := claims["user_id"].(string)
+		userID, err := primitive.ObjectIDFromHex(userIDStr)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error":   "Unauthorized: Invalid user ID",
+			})
+		}
+
+		// Store user_id as ObjectID in the context
+		c.Locals("user_id", userID)
 
 		// Proceed to the next handler
 		return c.Next()

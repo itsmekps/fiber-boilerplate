@@ -17,36 +17,50 @@ import (
 
 func main() {
 
+	// Initialize the database connection (e.g., MySQL, MongoDB)
 	db, err := database.InitDB()
-
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // Exit the application if the database initialization fails
 	}
 
-	// Initialize repositories
+	// Initialize repositories (data access layer) with the database connection
 	repos := repository.InitRepositories(db)
 
-	// Initialize services
+	// Initialize services (business logic layer) with the repositories
 	service.InitServices(repos)
 
+	// Set up the Fiber web server
 	app := bootstrap.InitWebServer()
-	app.Use(middleware.LogMiddleware())
+
+	// Enable Cross-Origin Resource Sharing (CORS) with the specified configuration
 	app.Use(cors.New(config.CORSConfig()))
+
+	// Register a logging middleware to log incoming requests
+	app.Use(middleware.LogMiddleware())
+
+	// Register any global or additional middleware
 	middleware.RegisterMiddleware(app)
 
+	// Register all API routes
 	router.ApiRouter(app)
+
+	// Start the web server
 	startServer(app)
 }
 
 func startServer(app *fiber.App) {
-	// Initialize logger
+	// Initialize a new logger instance for logging server events
 	log := logger.NewLogger()
 
+	// Load configuration values (e.g., server port) from the configuration file
 	v, err := config.InitConfig()
 	if err != nil {
-
-		log.Fatal(err)
+		log.Fatal(err) // Exit the application if the configuration fails to load
 	}
+
+	// Start the Fiber web server on the specified port from the configuration
 	log.Fatal(app.Listen(":" + v.GetString("Port")))
+
+	// Note: Add a deferred cleanup step here if a global database connection needs to be closed
 	// defer db.MySQL.Close()
 }
