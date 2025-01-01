@@ -10,6 +10,11 @@ import (
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		// Exclude specific routes from authentication
+		if strings.HasPrefix(c.Path(), "/api/auth/login") {
+			return c.Next() // Skip middleware for login
+		}
+
 		// Get Authorization header
 		authHeader := c.Get("Authorization")
 
@@ -42,9 +47,11 @@ func AuthMiddleware() fiber.Handler {
 				"error":   "Unauthorized: Invalid user ID",
 			})
 		}
-
+		role := claims["role"].(string)
 		// Store user_id as ObjectID in the context
 		c.Locals("user_id", userID)
+		// Set the role in Locals
+		c.Locals("role", role)
 
 		// Proceed to the next handler
 		return c.Next()

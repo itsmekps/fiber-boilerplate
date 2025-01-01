@@ -34,12 +34,12 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Generate a JWT token for the authenticated user
-	jwt, err := utils.GenerateToken(user.ID.Hex())
+	jwt, err := utils.GenerateToken(user)
 	if err != nil {
 		return appErrors.INTERNAL_SERVER_ERROR.Respond(c)
 	}
 
 	// Respond with the generated access token
 	return c.JSON(fiber.Map{"access_token": jwt,
-			"token_type": "Bearer",})
+		"token_type": "Bearer"})
 }

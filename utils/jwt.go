@@ -2,6 +2,8 @@ package utils
 
 import (
 	"errors"
+	"fiber-boilerplate/app/models"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -9,14 +11,15 @@ import (
 
 var jwtSecret = []byte("your-secret-key")
 
-func GenerateToken(userID string) (string, error) {
-    claims := jwt.MapClaims{
-        "user_id": userID,
-        "exp":     time.Now().Add(time.Hour * 72).Unix(),
-    }
-
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    return token.SignedString(jwtSecret)
+func GenerateToken(user *models.User) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": user.ID.Hex(),
+		"role":    user.Role,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+	}
+	fmt.Printf("Generated Claims: %+v\n", claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
 }
 
 // ValidateToken validates the given JWT and ensures it's valid

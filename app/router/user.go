@@ -13,8 +13,8 @@ import (
 func UserRouter(router fiber.Router) {
 	validate := validator.New()
 
-	// Create a sub-group of routes under the "/users" path, protected by the AuthMiddleware for authentication
-	userGroup := router.Group("/users", middleware.AuthMiddleware())
+	// Create a sub-group of routes under the "/users" path
+	userGroup := router.Group("/users")
 
 	{
 		// Validate details request without parameters

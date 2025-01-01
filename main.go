@@ -29,11 +29,23 @@ func main() {
 	// Initialize services (business logic layer) with the repositories
 	service.InitServices(repos)
 
+	// Initialize casbin - access control middleware
+	enforcer, err := database.InitCasbinEnforcer()
+	if err != nil {
+		panic(err)
+	}
+
 	// Set up the Fiber web server
 	app := bootstrap.InitWebServer()
 
 	// Enable Cross-Origin Resource Sharing (CORS) with the specified configuration
 	app.Use(cors.New(config.CORSConfig()))
+
+	// Apply Auth middleware globally
+	app.Use(middleware.AuthMiddleware())
+
+	// Apply Casbin middleware globally
+	app.Use(middleware.CasbinMiddleware(enforcer))
 
 	// Register a logging middleware to log incoming requests
 	app.Use(middleware.LogMiddleware())
@@ -42,7 +54,7 @@ func main() {
 	middleware.RegisterMiddleware(app)
 
 	// Register all API routes
-	router.ApiRouter(app)
+	router.ApiRouter(app, enforcer)
 
 	// Start the web server
 	startServer(app)

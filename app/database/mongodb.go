@@ -2,6 +2,8 @@ package database
 
 import (
 	"context"
+	"fiber-boilerplate/config"
+	"fmt"
 	"log"
 	"time"
 
@@ -13,10 +15,23 @@ var MongoClient *mongo.Client
 
 // ConnectMongoDB initializes the MongoDB connection.
 func InitMongoDB() *mongo.Client {
+
+	v, err := config.InitConfig()
+	if err != nil {
+		log.Fatal(err) // Exit the application if the configuration fails to load
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb+srv://kpskispl:shukla123@clg.bg5vb.mongodb.net/?retryWrites=true&w=majority&appName=CLG"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
+		fmt.Sprintf("mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority&appName=CLG",
+			v.GetString("Mongodb_user"),
+			v.GetString("Mongodb_password"),
+			v.GetString("Mongodb_host"),
+		)),
+	)
+
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
