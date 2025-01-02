@@ -2,10 +2,13 @@
 package service
 
 import (
-	"fiber-boilerplate/app/service/mongodb"
-	// "fiber-boilerplate/app/service/mysql"
+	"fiber-boilerplate/app/repository/mongodb"
 	"log"
 )
+
+var UserServiceInstance *UserService
+var PlayerServiceInstance *PlayerService
+var AuthServiceInstance *AuthService
 
 func InitServices(repos map[string]interface{}) {
 	// Initialize MySQL services
@@ -19,9 +22,17 @@ func InitServices(repos map[string]interface{}) {
 		log.Fatal("MySQL repositories not found or invalid type")
 	}
 
-	// mysql.InitServices(mysqlRepos)
-	mongodb.InitServices(mongoRepos)
+	userRepo, ok := mongoRepos["userRepo"].(*mongodb.UserRepository)
+	if !ok {
+		log.Fatal("Invalid user repository instance")
+	}
+	UserServiceInstance = NewUserService(userRepo)
+	AuthServiceInstance = NewAuthService(userRepo)
 
-	// Initialize MongoDB services
-	// mongo.InitServices(repos.(mapinterface{}))
+	playerRepo, ok := mongoRepos["playerRepo"].(*mongodb.PlayerRepository)
+	if !ok {
+		log.Fatal("Invalid user repository instance")
+	}
+	PlayerServiceInstance = NewPlayerService(playerRepo)
+
 }

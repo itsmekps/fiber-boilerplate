@@ -1,5 +1,5 @@
 // service/mongo/user_service.go
-package mongodb
+package service
 
 import (
 	"fiber-boilerplate/app/models"

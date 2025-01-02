@@ -1,5 +1,4 @@
-// service/mongo/user_service.go
-package mongodb
+package service
 
 import (
 	"fiber-boilerplate/app/models"
@@ -23,7 +22,7 @@ func NewUserService(repo *mongodb.UserRepository) *UserService {
 // User-related methods
 func (s *UserService) GetUser(id primitive.ObjectID) (*models.User, error) {
 	fmt.Println("objID service: ", id)
-	
+
 	return s.repo.GetUser(id)
 }
 
@@ -42,4 +41,3 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 // func (s *UserService) DeleteUser(username string) error {
 // 	// Implement logic using s.repo
 // }
-

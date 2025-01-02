@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fiber-boilerplate/app/dtos"
-	"fiber-boilerplate/app/service/mongodb"
+	"fiber-boilerplate/app/service"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,7 +17,7 @@ func GetPlayersList(c *fiber.Ctx) error {
 
 	// Fetch players from the database
 	// The service layer is responsible for interacting with MongoDB
-	players, err := mongodb.PlayerServiceInstance.GetPlayersList(page, limit)
+	players, err := service.PlayerServiceInstance.GetPlayersList(page, limit)
 	if err != nil {
 		// Return the error if the user retrieval fails (e.g., user not found or DB error)
 		return err
@@ -36,7 +36,7 @@ func GetPlayerDetails(c *fiber.Ctx) error {
 
 	// Fetch the user from the database using the validated ObjectID
 	// The service layer is responsible for interacting with MongoDB
-	user, err := mongodb.UserServiceInstance.GetUser(userID)
+	user, err := service.UserServiceInstance.GetUser(userID)
 	if err != nil {
 		// Return the error if the user retrieval fails (e.g., user not found or DB error)
 		return err

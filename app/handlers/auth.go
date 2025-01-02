@@ -2,16 +2,21 @@ package handlers
 
 import (
 	"fiber-boilerplate/app/dtos"
-	appErrors "fiber-boilerplate/app/errors"
-	"fiber-boilerplate/app/service/mongodb"
-	"fiber-boilerplate/utils"
-	"fmt"
+	"fiber-boilerplate/app/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+type AuthHandler struct {
+	AuthService *service.AuthService
+}
+
+func NewAuthHandler(authService *service.AuthService) AuthHandler {
+	return AuthHandler{AuthService: authService}
+}
+
 // Login returns a access token by username and password
-func Login(c *fiber.Ctx) error {
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	// Retrieve validated email and password from request context
 	validatedRequest := c.Locals("validatedRequest").(*dtos.LoginRequest)
 
@@ -19,27 +24,15 @@ func Login(c *fiber.Ctx) error {
 	email := validatedRequest.Email
 	password := validatedRequest.Password
 
-	// Fetch user by email from the database
-	user, err := mongodb.UserServiceInstance.GetUserByEmail(email)
-	fmt.Println("user details: ", user)
-
-	// Return error if user is not found or retrieval fails
-	if err != nil || user == nil {
-		return appErrors.USER_NOT_FOUND.Respond(c)
-	}
-
-	// Validate the provided password against the stored hash
-	if !utils.CheckPasswordHash(password, user.Password) {
-		return appErrors.INVALID_PASSWORD.Respond(c)
-	}
-
-	// Generate a JWT token for the authenticated user
-	jwt, err := utils.GenerateToken(user)
+	// Call AuthService to handle login
+	token, err := h.AuthService.Login(email, password)
 	if err != nil {
-		return appErrors.INTERNAL_SERVER_ERROR.Respond(c)
+		return err.Respond(c)
 	}
 
-	// Respond with the generated access token
-	return c.JSON(fiber.Map{"access_token": jwt,
-		"token_type": "Bearer"})
+	// Return success response
+	return c.JSON(fiber.Map{
+		"access_token": token,
+		"token_type":   "Bearer",
+	})
 }
