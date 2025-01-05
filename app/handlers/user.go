@@ -8,8 +8,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type UserHandler struct {
+	UserService *service.UserService
+}
+
+func NewUserHandler(userService *service.UserService) UserHandler {
+	return UserHandler{UserService: userService}
+}
+
 // GetUser returns a user by ID
-func GetUser(c *fiber.Ctx) error {
+func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	// Retrieve the validated request object from Fiber's context
 	// The validated request contains the parsed and validated ObjectID from the route parameter
 	validatedRequest := c.Locals("validatedRequest").(*dtos.GetUserByMongoID)
@@ -19,7 +27,8 @@ func GetUser(c *fiber.Ctx) error {
 	user, err := service.UserServiceInstance.GetUser(validatedRequest.ID)
 	if err != nil {
 		// Return the error if the user retrieval fails (e.g., user not found or DB error)
-		return err
+		// return err
+		return err.Respond(c)
 	}
 
 	// Create a sanitized response object excluding sensitive fields (e.g., password)
@@ -37,7 +46,7 @@ func GetUser(c *fiber.Ctx) error {
 	})
 }
 
-func GetUserDetails(c *fiber.Ctx) error {
+func (h *UserHandler) GetUserDetails(c *fiber.Ctx) error {
 	// Retrieve user_id from the context
 	userID := c.Locals("user_id").(primitive.ObjectID)
 
@@ -46,7 +55,7 @@ func GetUserDetails(c *fiber.Ctx) error {
 	user, err := service.UserServiceInstance.GetUser(userID)
 	if err != nil {
 		// Return the error if the user retrieval fails (e.g., user not found or DB error)
-		return err
+		return err.Respond(c)
 	}
 
 	// Create a sanitized response object excluding sensitive fields (e.g., password)

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"fiber-boilerplate/app/errors"
 	"fiber-boilerplate/app/models"
 	"fiber-boilerplate/app/repository/mongodb"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	// "log"
@@ -20,14 +20,22 @@ func NewUserService(repo *mongodb.UserRepository) *UserService {
 }
 
 // User-related methods
-func (s *UserService) GetUser(id primitive.ObjectID) (*models.User, error) {
-	fmt.Println("objID service: ", id)
+func (s *UserService) GetUser(id primitive.ObjectID) (*models.User, *errors.AppError) {
 
-	return s.repo.GetUser(id)
+	user, err := s.repo.GetUser(id)
+	if err != nil {
+		return nil, errors.USER_NOT_FOUND
+	}
+	return user, nil
 }
 
-func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
-	return s.repo.GetUserByEmail(email)
+func (s *UserService) GetUserByEmail(email string) (*models.User, *errors.AppError) {
+
+	user, err := s.repo.GetUserByEmail(email)
+	if err != nil {
+		return nil, errors.USER_NOT_FOUND
+	}
+	return user, nil
 }
 
 // func (s *UserService) CreateUser(user *User) (*User, error) {
